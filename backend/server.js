@@ -10,16 +10,20 @@ const allowedOrigins = [
   'https://mhtailoring.onrender.com'
 ];
 
-app.use(cors({
-  origin: (origin, callback) => {
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl/postman)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.warn(`🚫 Blocked by CORS: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true
-}));
+};
+
+app.use(cors(corsOptions));
 
 // 🔥 FIX: move these here, BEFORE any routes
 app.use(express.json({ limit: '10mb' }));
