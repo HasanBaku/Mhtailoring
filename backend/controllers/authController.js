@@ -38,19 +38,6 @@ const login = async (req, res) => {
 
 
 
-
-    INSERT INTO users (email, password, role, full_name, company_name, phone, address, industry)
-VALUES (
-  'admin@test.com',
-  '$2b$10$07JDI1QN68dO4m/omhUwPOY4WaxTbyKITE4Dpznszan0ww/W4LE4W',
-  'admin',
-  'Admin One',
-  'Admin Inc.',
-  '0987654321',
-  'Admin HQ',
-  'Management'
-);
-
     const token = jwt.sign(
       { userId: user.id, role: user.role },
       process.env.JWT_SECRET,
