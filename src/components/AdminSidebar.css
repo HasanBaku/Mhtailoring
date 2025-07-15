@@ -1,0 +1,40 @@
+/* AdminSidebar.css */
+.admin-sidebar {
+    width: 220px;
+    background-color: #1f1f2e;
+    color: #fff;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
+  
+  .admin-logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 40px;
+  }
+  
+  .admin-sidebar ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .admin-sidebar li {
+    margin: 20px 0;
+  }
+  
+  .admin-sidebar li a {
+    color: #ccc;
+    text-decoration: none;
+    transition: 0.3s;
+  }
+  
+  .admin-sidebar li.active a,
+  .admin-sidebar li a:hover {
+    color: #fff;
+    font-weight: bold;
+  }
+  

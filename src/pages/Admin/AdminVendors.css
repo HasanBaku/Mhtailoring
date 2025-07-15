@@ -1,0 +1,24 @@
+.admin-vendors-container {
+    padding: 40px 60px;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+  }
+  
+  .table {
+    font-size: 0.95rem;
+  }
+  
+  .table th,
+  .table td {
+    vertical-align: middle;
+  }
+  
+  .table-hover tbody tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-weight: bold;
+  }
+  

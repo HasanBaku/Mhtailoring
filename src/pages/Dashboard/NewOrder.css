@@ -1,0 +1,43 @@
+.new-order-form {
+  max-width: 700px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+}
+
+.new-order-form h2 {
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.new-order-form form input,
+.new-order-form form textarea,
+.new-order-form form select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.new-order-form .measurements {
+  display: flex;
+  gap: 10px;
+}
+
+.new-order-form button {
+  background-color: #000;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.new-order-form button:hover {
+  background-color: #222;
+}
