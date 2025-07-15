@@ -19,7 +19,7 @@ import AdminLayout from './pages/Admin/AdminLayout';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import AdminOrders from './pages/Admin/AdminOrders';
 import AdminInvoices from './pages/Admin/AdminInvoices';
-import AdminOrderDetail from './pages/admin/AdminOrderDetail';
+import AdminOrderDetail from './pages/Admin/AdminOrderDetail';
 import AdminVendors from './pages/Admin/AdminVendors';
 import AdminVendorDetail from './pages/Admin/AdminVendorDetail';
 import OrderDetail from './pages/Dashboard/OrderDetail';
