@@ -23,7 +23,11 @@ const corsOptions = {
   credentials: true
 };
 
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: true, // Reflect the request origin
+  credentials: true
+}));
+
 
 // 🔥 FIX: move these here, BEFORE any routes
 app.use(express.json({ limit: '10mb' }));
