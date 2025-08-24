@@ -21,9 +21,10 @@ function AdminDashboard() {
     const fetchOrders = async () => {
       try {
         const token = localStorage.getItem('authToken');
-        const res = await axios.get('/orders/admin/all', {
+        const res = await axios.get('/api/orders/admin/all', {
           headers: { Authorization: `Bearer ${token}` }
         });
+        console.log("📦 Orders response:", res.data);
         setOrders(res.data);
       } catch (err) {
         console.error('Failed to fetch orders:', err);

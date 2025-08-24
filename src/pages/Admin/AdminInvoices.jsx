@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from '../../utils/axiosInstance';
+import api from '../../api/api'; // ✅ only use this one
 import { generatePDF } from '../../utils/pdfUtils';
 
 function AdminInvoices() {
@@ -12,8 +12,8 @@ function AdminInvoices() {
 
   const fetchAllInvoices = async () => {
     try {
-      const res = await axios.get('/invoices');
-      setAllInvoices(res.data); // Assuming backend returns [{...invoice}]
+      const res = await api.get('/invoices'); // ✅ correct call
+      setAllInvoices(res.data);
     } catch (err) {
       console.error("❌ Failed to fetch invoices:", err);
     }
@@ -22,7 +22,7 @@ function AdminInvoices() {
   const markAsCompleted = async (invoiceId) => {
     if (!window.confirm("Mark this invoice as COMPLETED? This action is irreversible.")) return;
     try {
-      await axios.put(`/invoices/${invoiceId}/mark-completed`);
+      await api.put(`/invoices/${invoiceId}/mark-completed`); // ✅ use api
       setAllInvoices(prev =>
         prev.map(inv =>
           inv.id === invoiceId ? { ...inv, payment_status: 'Completed' } : inv
@@ -31,13 +31,12 @@ function AdminInvoices() {
     } catch (err) {
       console.error("❌ Failed to mark as completed:", err);
     }
-    
   };
 
   const deleteInvoice = async (id) => {
     if (!window.confirm("Are you sure you want to delete this invoice?")) return;
     try {
-      await axios.delete(`/invoices/${id}`);
+      await api.delete(`/invoices/${id}`); // ✅ use api
       setAllInvoices(prev => prev.filter(inv => inv.id !== id));
     } catch (err) {
       console.error("❌ Failed to delete invoice:", err);
@@ -47,8 +46,6 @@ function AdminInvoices() {
   const filteredInvoices = filterEmail
     ? allInvoices.filter(inv => inv.vendor_email === filterEmail)
     : allInvoices;
-
-
 
   return (
     <div>
@@ -73,9 +70,9 @@ function AdminInvoices() {
           <p><strong>Invoice ID:</strong> {inv.id}</p>
           <p><strong>Order ID:</strong> {inv.order_id}</p>
           <p><strong>Amount:</strong> ${inv.total_price}</p>
-
           <p><strong>Issued At:</strong> {inv.issued_at}</p>
           <p><strong>Status:</strong> {inv.payment_status}</p>
+
           <button onClick={() => generatePDF(`admin-invoice-${inv.id}`, `Invoice-${inv.id}.pdf`)}>Download PDF</button>
           <button
             onClick={() => deleteInvoice(inv.id)}

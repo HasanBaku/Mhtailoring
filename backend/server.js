@@ -23,10 +23,7 @@ const corsOptions = {
   credentials: true
 };
 
-app.use(cors({
-  origin: true, // Reflect the request origin
-  credentials: true
-}));
+app.use(cors(corsOptions));
 
 
 // 🔥 FIX: move these here, BEFORE any routes

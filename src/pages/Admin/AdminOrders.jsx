@@ -3,7 +3,7 @@ import AdminLayout from './AdminLayout';
 import { sendEmail } from '../../utils/sendEmail';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import axios from '../../utils/axiosInstance';
+import api from '../../api/api';
 
 
 
@@ -133,31 +133,21 @@ const deleteOrder = async (id) => {
 const approveOrder = async (orderId) => {
   if (!window.confirm("Are you sure you want to approve this order? An invoice will be generated.")) return;
   try {
-    await axios.put(`/orders/${orderId}/approve`);
-    fetchOrders(); // assuming you've moved it to top-level
+    await api.put(`/orders/${orderId}/approve`);   // ✅ now /api/orders/:id/approve
+    fetchOrders();
   } catch (err) {
-    console.error("❌ Failed to approve order:", err);
+    console.error("❌ Failed to approve order:", err.response?.data || err.message);
   }
 };
 
 const rejectOrder = async (orderId) => {
   if (!window.confirm("Rejecting will delete the invoice (if exists). Are you sure?")) return;
-
   try {
-    const token = localStorage.getItem('authToken');
-    const res = await axios.put(`/orders/${orderId}/reject`, {}, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-
+    const res = await api.put(`/orders/${orderId}/reject`);  // ✅ now /api/orders/:id/reject
     const updated = res.data;
-    setOrders(prev =>
-      prev.map(order => (order.id === updated.id ? updated : order))
-    );
+    setOrders(prev => prev.map(order => (order.id === updated.id ? updated : order)));
   } catch (err) {
-    alert(err.response?.data?.error || "Failed to reject order");
-    console.error("❌ Failed to reject order:", err);
+    console.error("❌ Failed to reject order:", err.response?.data || err.message);
   }
 };
 
