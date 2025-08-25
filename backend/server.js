@@ -32,6 +32,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 
 // 🔥 FIX: move these here, BEFORE any routes
