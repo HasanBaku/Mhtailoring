@@ -14,9 +14,8 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:5173',
   'https://mhtailoring-front.onrender.com',
-  'https://mhtailoring.onrender.com'  // ✅ This is your actual frontend
+  'https://mhtailoring.onrender.com'
 ];
-
 
 const corsOptions = {
   origin: function (origin, callback) {
@@ -28,11 +27,11 @@ const corsOptions = {
     }
   },
   credentials: true,
-  optionsSuccessStatus: 200 // 🛠 Fix for legacy browsers or misrouted preflight
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+app.options('*', cors(corsOptions)); // 🔥 THIS LINE IS MANDATORY
 
 
 // 🔥 FIX: move these here, BEFORE any routes
