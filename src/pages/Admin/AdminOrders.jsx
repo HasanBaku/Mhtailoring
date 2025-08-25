@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../api/api';
 
 
-
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [editingId, setEditingId] = useState(null);
@@ -22,7 +22,7 @@ function AdminOrders() {
 const fetchOrders = async () => {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch('http://localhost:5000/api/orders/admin/all', {
+    const response = await fetch(`${BASE_URL}/api/orders/admin/all`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
