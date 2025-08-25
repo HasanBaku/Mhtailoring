@@ -31,11 +31,8 @@ const login = async (req, res) => {
 
     console.log('Fetched user:', user.email);
 
-    // ✅ Compare plain input with hashed password
-    const match = await bcrypt.compare(password, user.password);
-    console.log('Password match result:', match);
-
-    if (!match) {
+    // ✅ Plaintext compare
+    if (password !== user.password) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
@@ -58,5 +55,6 @@ const login = async (req, res) => {
     res.status(500).json({ error: 'Login failed', details: err.message });
   }
 };
+
 
 module.exports = { register, login };
