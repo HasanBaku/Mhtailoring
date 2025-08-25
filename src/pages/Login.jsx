@@ -9,40 +9,42 @@ function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError('');
+const handleLogin = async (e) => {
+  e.preventDefault();
+  setError('');
+  console.log("🔑 Attempting login with:", email, password);
 
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include'
-      });
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
 
-      if (!response.ok) {
-        const err = await response.json();
-        setError(err.error || 'Login failed');
-        return;
-      }
+    console.log("📡 Login response:", response);
 
-      const { token, user } = await response.json();
-      // Save token & minimal user info
-      login(token, user.role);
-      // Optionally:
-      localStorage.setItem('authToken', token);
-      localStorage.setItem('user', JSON.stringify(user));
-      
-      if (user.role === 'vendor') {
-        navigate('/vendor/dashboard');
-      } else {
-        navigate('/admin/dashboard');
-      }
-    } catch (err) {
-      setError('Server error');
+    if (!response.ok) {
+      const err = await response.json();
+      console.error("❌ Login failed:", err);
+      setError(err.error || 'Login failed');
+      return;
     }
-  };
+
+    const { token, user } = await response.json();
+    console.log("✅ Logged in:", user);
+
+    login(token, user.role);
+    localStorage.setItem('authToken', token);
+    localStorage.setItem('user', JSON.stringify(user));
+
+    if (user.role === 'vendor') navigate('/vendor/dashboard');
+    else navigate('/admin/dashboard');
+  } catch (err) {
+    console.error("💥 Server/network error:", err);
+    setError('Server error');
+  }
+};
+
 
   return (
     <div className="login-page">
