@@ -9,9 +9,9 @@ const {
   deleteVendor,
   updateVendorPassword
 } = require('../controllers/userController');
+const db = require('../db'); // ✅ Add this line for ping-db route
 
 // ✅ Protected routes
-
 router.get('/me', authenticateToken, getUserProfile);
 router.put('/me', authenticateToken, updateUserProfile);
 router.get('/vendors', authenticateToken, getAllVendors);
@@ -19,13 +19,12 @@ router.post('/vendors', authenticateToken, createVendor);
 router.delete('/vendors/:id', authenticateToken, deleteVendor);
 router.put('/vendors/:id/password', authenticateToken, updateVendorPassword);
 
-// ✅ Test route (optional)
+// ✅ Test route
 router.get('/test', (req, res) => {
   res.send('User route works');
 });
-const db = require('../db');
 
-// 🔍 Debug DB connection route
+// ✅ Debug DB connection route
 router.get('/ping-db', async (req, res) => {
   try {
     const result = await db.query('SELECT NOW()');
@@ -34,5 +33,7 @@ router.get('/ping-db', async (req, res) => {
     console.error('❌ DB connection failed:', err);
     res.status(500).json({ error: 'DB failed', details: err.message });
   }
-// ✅ Export after all routes are defined
+});
+
+// ✅ Export router — THIS SHOULD BE LAST
 module.exports = router;
