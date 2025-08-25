@@ -40,7 +40,10 @@ app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/invoices', invoiceRoutes);
-
+app.use((err, req, res, next) => {
+  console.error('🔥 Global Error Handler:', err.stack);
+  res.status(500).json({ error: 'Server error', details: err.message });
+});
 // ✅ Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
