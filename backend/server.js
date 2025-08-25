@@ -3,6 +3,12 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 dotenv.config();
 
+console.log('Loaded ENV:', {
+  DB_URL: process.env.DATABASE_URL,
+  JWT: process.env.JWT_SECRET,
+  PORT: process.env.PORT
+});
+
 const app = express();
 
 const allowedOrigins = [
