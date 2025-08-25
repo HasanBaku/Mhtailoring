@@ -104,13 +104,12 @@ const bcrypt = require('bcrypt');
 exports.createVendor = async (req, res) => {
   try {
     const { email, password, company_name, contact_name, phone, address, industry } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
 
     const result = await db.query(`
       INSERT INTO users (email, password, role, company_name, contact_name, phone, address, industry, registered_at)
       VALUES ($1, $2, 'vendor', $3, $4, $5, $6, $7, NOW())
       RETURNING id, email, role, registered_at
-    `, [email, hashedPassword, company_name, contact_name, phone, address, industry]);
+    `, [email, password, company_name, contact_name, phone, address, industry]);
 
     res.status(201).json(result.rows[0]);
   } catch (err) {
