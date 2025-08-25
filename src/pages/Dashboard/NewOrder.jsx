@@ -146,9 +146,10 @@ function NewOrder() {
   const handleSubmit = async (formData) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post('http://localhost:5000/api/orders', formData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const API_BASE = import.meta.env.VITE_API_BASE_URL;  
+        axios.post(`${API_BASE}/orders`, formData, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
 
       console.log("✅ Order created:", response.data);
 
