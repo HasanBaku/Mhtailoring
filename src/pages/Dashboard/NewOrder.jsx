@@ -141,21 +141,26 @@ function OrderForm({ initialData = {}, onSubmit, onCancel }) {
 }
 
 function NewOrder() {
-  const navigate = useNavigate(); // ✅ setup navigate
+  const navigate = useNavigate();
 
   const handleSubmit = async (formData) => {
     try {
-      const token = localStorage.getItem('token');
-      const API_BASE = import.meta.env.VITE_API_BASE_URL;  
-        axios.post(`${API_BASE}/orders`, formData, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+      const token = localStorage.getItem('authToken'); // ✅ correct key
+      const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
+      // ✅ ensure measurements is JSON
+      const payload = {
+        ...formData,
+        measurements: JSON.stringify(formData.measurements),
+      };
+
+      const response = await axios.post(`${API_BASE}/orders`, payload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
       console.log("✅ Order created:", response.data);
 
-      // ✅ Redirect after success
       navigate('/vendor/orders');
-
     } catch (err) {
       console.error("❌ Failed to create order:", err.response?.data || err.message);
     }
@@ -163,5 +168,6 @@ function NewOrder() {
 
   return <OrderForm onSubmit={handleSubmit} />;
 }
+
 
 export default NewOrder;
