@@ -7,12 +7,11 @@ const app = express();
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://mhtailoring-front.onrender.com' 
+  'https://mhtailoring-front.onrender.com'
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl/postman)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -20,7 +19,8 @@ const corsOptions = {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 200 // 🛠 Fix for legacy browsers or misrouted preflight
 };
 
 app.use(cors(corsOptions));
