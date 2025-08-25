@@ -53,6 +53,10 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Server error', details: err.message });
 });
 
+app.get('/', (req, res) => {
+  res.send('API is running...');
+});
+
 // 404 fallback
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
