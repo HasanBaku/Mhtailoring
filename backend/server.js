@@ -7,7 +7,10 @@ console.log('Loaded ENV:', {
   JWT: process.env.JWT_SECRET,
   PORT: process.env.PORT
 });
-
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://mhtailoring-front.onrender.com' // ✅ CORRECTED
+];
 const app = express();
 
 // ✅ Payload parsing BEFORE routes
