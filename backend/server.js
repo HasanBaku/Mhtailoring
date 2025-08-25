@@ -13,8 +13,10 @@ const app = express();
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://mhtailoring-front.onrender.com'
+  'https://mhtailoring-front.onrender.com',
+  'https://mhtailoring.onrender.com'  // ✅ This is your actual frontend
 ];
+
 
 const corsOptions = {
   origin: function (origin, callback) {
