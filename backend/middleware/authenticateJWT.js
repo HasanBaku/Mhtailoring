@@ -8,7 +8,7 @@ const authenticateToken = async (req, res, next) => {
     if (!token) return res.status(401).json({ error: 'No token provided' });
 
   try {
-    const user = jwt.verify(token, process.env.JWT);
+    const user = jwt.verify(token, process.env.JWT_SECRET);
 
     // Ensure required fields
     if (!user.userId || !user.role) {
