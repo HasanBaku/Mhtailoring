@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const db = require('../db');
+const isMatch = await bcrypt.compare(password, user.password);
 
 const register = async (req, res) => {
   const { email, password, role } = req.body;
