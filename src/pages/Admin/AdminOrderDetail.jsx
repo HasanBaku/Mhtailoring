@@ -16,13 +16,15 @@ function AdminOrderDetail() {
   });
 
   const fabricOptions = ['cotton', 'wool', 'linen', 'polyester', 'silk'];
-
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     const fetchOrder = async () => {
       try {
         const token = localStorage.getItem('authToken');
-        const res = await fetch(`http://localhost:5000/api/orders/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const response = await fetch(`${BASE_URL}/api/orders/admin/all`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         });
 
         if (!res.ok) throw new Error('Failed to fetch order details');
