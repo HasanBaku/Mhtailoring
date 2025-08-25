@@ -145,16 +145,15 @@ function NewOrder() {
 
   const handleSubmit = async (formData) => {
     try {
-      const token = localStorage.getItem('authToken'); // ✅ correct key
+      const token = localStorage.getItem('authToken');
       const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
-      // ✅ ensure measurements is JSON
       const payload = {
         ...formData,
-        measurements: JSON.stringify(formData.measurements),
+        measurements: JSON.stringify(formData.measurements), // ✅ stringify
       };
 
-      const response = await axios.post(`${API_BASE}/orders`, payload, {
+      const response = await axios.post(`${API_BASE}/api/orders`, payload, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -168,6 +167,5 @@ function NewOrder() {
 
   return <OrderForm onSubmit={handleSubmit} />;
 }
-
 
 export default NewOrder;
