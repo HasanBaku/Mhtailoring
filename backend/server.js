@@ -7,7 +7,7 @@ const app = express();
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://mhtailoring.onrender.com'
+  'https://mhtailoring-front.onrender.com' 
 ];
 
 const corsOptions = {
