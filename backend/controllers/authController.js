@@ -31,10 +31,12 @@ const login = async (req, res) => {
 
     console.log('Fetched user:', user.email);
 
-    const match = password === user.password;
+    const match = await bcrypt.compare(password, user.password);
     console.log('Password match result:', match);
-
-    if (!match) return res.status(400).json({ error: 'Invalid credentials' });
+    
+    if (!match) {
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
 
     const token = jwt.sign(
       { userId: user.id, role: user.role },
