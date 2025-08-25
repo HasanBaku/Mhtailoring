@@ -12,27 +12,29 @@ function Login() {
 const handleLogin = async (e) => {
   e.preventDefault();
   setError('');
-  console.log("🔑 Attempting login with:", email, password);
+  console.log("🔑 Attempting login with:", email);
 
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/login`, {
+    const url = `${import.meta.env.VITE_API_BASE_URL}/api/auth/login`;
+    console.log("📡 Sending POST to:", url);
+
+    const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
 
-    console.log("📡 Login response:", response);
+    console.log("📩 Raw response:", response);
+
+    const data = await response.json().catch(() => ({}));
+    console.log("📦 Parsed body:", data);
 
     if (!response.ok) {
-      const err = await response.json();
-      console.error("❌ Login failed:", err);
-      setError(err.error || 'Login failed');
+      setError(data.error || 'Login failed');
       return;
     }
 
-    const { token, user } = await response.json();
-    console.log("✅ Logged in:", user);
-
+    const { token, user } = data;
     login(token, user.role);
     localStorage.setItem('authToken', token);
     localStorage.setItem('user', JSON.stringify(user));
@@ -40,7 +42,7 @@ const handleLogin = async (e) => {
     if (user.role === 'vendor') navigate('/vendor/dashboard');
     else navigate('/admin/dashboard');
   } catch (err) {
-    console.error("💥 Server/network error:", err);
+    console.error("💥 Network/Server error:", err);
     setError('Server error');
   }
 };
