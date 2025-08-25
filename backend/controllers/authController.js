@@ -25,15 +25,16 @@ const login = async (req, res) => {
     const user = result.rows[0];
 
     if (!user) {
-      console.log('User not found');
+      console.log('❌ User not found');
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
     console.log('Fetched user:', user.email);
 
+    // ✅ Compare plain input with hashed password
     const match = await bcrypt.compare(password, user.password);
     console.log('Password match result:', match);
-    
+
     if (!match) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
