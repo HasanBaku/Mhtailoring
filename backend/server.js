@@ -1,5 +1,4 @@
 const express = require('express');
-const cors = require('cors');
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -11,32 +10,16 @@ console.log('Loaded ENV:', {
 
 const app = express();
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'https://mhtailoring-front.onrender.com',
-  'https://mhtailoring.onrender.com'
-];
-
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.warn(`🚫 Blocked by CORS: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  optionsSuccessStatus: 200
-};
-
-
-
-// 🔥 FIX: move these here, BEFORE any routes
+// ✅ Payload parsing BEFORE routes
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// ✅ Routes
+// ✅ Skip CORS completely
+// If you REALLY want to allow everything (not recommended for production), you can use:
+// const cors = require('cors');
+// app.use(cors()); 
+
+// ✅ Mount routes
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const orderRoutes = require('./routes/orderRoutes');
@@ -46,10 +29,13 @@ app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/invoices', invoiceRoutes);
+
+// ✅ Global error handler
 app.use((err, req, res, next) => {
   console.error('🔥 Global Error Handler:', err.stack);
   res.status(500).json({ error: 'Server error', details: err.message });
 });
+
 // ✅ Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
