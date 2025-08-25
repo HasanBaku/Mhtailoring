@@ -2,39 +2,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const db = require('../db');
 
-console.log('Incoming login request:', req.body);
-
-try {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ msg: 'Missing fields' });
-  }
-
-  const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-
-  if (result.rows.length === 0) {
-    return res.status(401).json({ msg: 'User not found' });
-  }
-
-  const user = result.rows[0];
-  console.log('User found in DB:', user);
-
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    return res.status(401).json({ msg: 'Invalid credentials' });
-  }
-
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-  res.status(200).json({ token, user: { id: user.id, email: user.email } });
-
-} catch (err) {
-  console.error('🔥 Login Error:', err.message, err.stack);
-  res.status(500).json({ error: 'Server error', details: err.message });
-}
-
-
 const register = async (req, res) => {
   const { email, password, role } = req.body;
   try {
@@ -69,8 +36,6 @@ const login = async (req, res) => {
 
     if (!match) return res.status(400).json({ error: 'Invalid credentials' });
 
-
-
     const token = jwt.sign(
       { userId: user.id, role: user.role },
       process.env.JWT_SECRET,
@@ -90,7 +55,5 @@ const login = async (req, res) => {
     res.status(500).json({ error: 'Login failed', details: err.message });
   }
 };
-
-
 
 module.exports = { register, login };
