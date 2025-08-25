@@ -9,8 +9,21 @@ console.log('Loaded ENV:', {
 });
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://mhtailoring-front.onrender.com' // ✅ CORRECTED
+  'https://mhtailoring-front.onrender.com' // ✅ MUST MATCH
 ];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+};
+
+app.use(cors(corsOptions));
 const app = express();
 
 // ✅ Payload parsing BEFORE routes
