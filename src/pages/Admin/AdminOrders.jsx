@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import AdminLayout from './AdminLayout';
-import { sendEmail } from '../../utils/sendEmail';
-import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/api';
 
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [editingId, setEditingId] = useState(null);
@@ -18,138 +13,73 @@ function AdminOrders() {
   });
   const navigate = useNavigate();
 
-
-const fetchOrders = async () => {
-  try {
-    const token = localStorage.getItem('authToken');
-    const response = await fetch(`${BASE_URL}/api/orders/admin/all`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch orders');
-    }
-
-    const data = await response.json();
-    setOrders(data);
-  } catch (err) {
-    console.error('Error fetching orders:', err.message);
-  }
-};
-
-  useEffect(() => {
   const fetchOrders = async () => {
     try {
-      const token = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:5000/api/orders/admin/all', {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  })
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch orders');
-      }
-
-      const data = await response.json();
-      setOrders(data);
+      const res = await api.get('/orders/admin/all');
+      setOrders(res.data);
     } catch (err) {
-      console.error('Error fetching orders:', err.message);
+      console.error('Error fetching orders:', err.response?.data || err.message);
     }
   };
 
-  fetchOrders();
-}, []);
-  
-  console.log('Fetched Orders:', orders);
-
-
-const editOrder = async (id) => {
-  try {
-    const token = localStorage.getItem('authToken');
-    const response = await fetch(`http://localhost:5000/api/orders/${id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ estimatedPrice: parseFloat(newPrice) }) // backend expects this
-
-    });
-
-    if (!response.ok) throw new Error('Failed to update order price');
-
-    const updatedOrder = await response.json();
-    setOrders(prev =>
-      prev.map(order => (order.id === id ? updatedOrder : order))
-    );
-    setEditingId(null);
-    setNewPrice('');
-  } catch (err) {
-    console.error('Edit order error:', err.message);
-  }
-};
-
-
-const updateOrderStatus = async (id, newStatus) => {
-  try {
-    const token = localStorage.getItem('authToken');
-    const response = await fetch(`http://localhost:5000/api/orders/${id}/status`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ status: newStatus })
-    });
-
-    if (!response.ok) throw new Error('Failed to update order status');
-    const updatedOrder = await response.json();
-
-    setOrders(prev =>
-      prev.map(order => (order.id === id ? updatedOrder : order))
-    );
-  } catch (err) {
-    console.error('Error updating status:', err.message);
-  }
-};
-
-
-const deleteOrder = async (id) => {
-  if (!window.confirm('Are you sure you want to delete this order?')) return;
-  try {
-    const token = localStorage.getItem('authToken');
-    await axios.delete(`/orders/${id}`);
-    setOrders(prev => prev.filter(order => order.id !== id));
-    if (!res.ok) throw new Error('Delete failed');
-    setOrders(prev => prev.filter(order => order.id !== id));
-  } catch (err) {
-    console.error('Delete error:', err.message);
-  }
-};
-
-const approveOrder = async (orderId) => {
-  if (!window.confirm("Are you sure you want to approve this order? An invoice will be generated.")) return;
-  try {
-    await api.put(`/orders/${orderId}/approve`);   // ✅ now /api/orders/:id/approve
+  useEffect(() => {
     fetchOrders();
-  } catch (err) {
-    console.error("❌ Failed to approve order:", err.response?.data || err.message);
-  }
-};
+  }, []);
 
-const rejectOrder = async (orderId) => {
-  if (!window.confirm("Rejecting will delete the invoice (if exists). Are you sure?")) return;
-  try {
-    const res = await api.put(`/orders/${orderId}/reject`);  // ✅ now /api/orders/:id/reject
-    const updated = res.data;
-    setOrders(prev => prev.map(order => (order.id === updated.id ? updated : order)));
-  } catch (err) {
-    console.error("❌ Failed to reject order:", err.response?.data || err.message);
-  }
-};
+  const editOrder = async (id) => {
+    try {
+      const res = await api.patch(`/orders/${id}`, {
+        estimatedPrice: parseFloat(newPrice),
+      });
+      const updated = res.data;
+      setOrders(prev => prev.map(o => (o.id === id ? updated : o)));
+      setEditingId(null);
+      setNewPrice('');
+    } catch (err) {
+      console.error('Edit order error:', err.response?.data || err.message);
+    }
+  };
+
+  const updateOrderStatus = async (id, newStatus) => {
+    try {
+      const res = await api.patch(`/orders/${id}/status`, { status: newStatus });
+      const updated = res.data;
+      setOrders(prev => prev.map(o => (o.id === id ? updated : o)));
+    } catch (err) {
+      console.error('Error updating status:', err.response?.data || err.message);
+    }
+  };
+
+  const deleteOrder = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this order?')) return;
+    try {
+      await api.delete(`/orders/${id}`);
+      setOrders(prev => prev.filter(o => o.id !== id));
+    } catch (err) {
+      console.error('Delete error:', err.response?.data || err.message);
+    }
+  };
+
+  const approveOrder = async (orderId) => {
+    if (!window.confirm("Approve this order and generate invoice?")) return;
+    try {
+      await api.put(`/orders/${orderId}/approve`);
+      fetchOrders();
+    } catch (err) {
+      console.error("❌ Failed to approve order:", err.response?.data || err.message);
+    }
+  };
+
+  const rejectOrder = async (orderId) => {
+    if (!window.confirm("Rejecting will delete invoice (if exists). Proceed?")) return;
+    try {
+      const res = await api.put(`/orders/${orderId}/reject`);
+      const updated = res.data;
+      setOrders(prev => prev.map(order => (order.id === updated.id ? updated : order)));
+    } catch (err) {
+      console.error("❌ Failed to reject order:", err.response?.data || err.message);
+    }
+  };
 
 
 
