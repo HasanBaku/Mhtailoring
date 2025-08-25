@@ -1,7 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 dotenv.config();
-
+const cors = require('cors');
 console.log('Loaded ENV:', {
   DB_URL: process.env.DATABASE_URL,
   JWT: process.env.JWT_SECRET,
@@ -24,6 +24,8 @@ const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const invoiceRoutes = require('./routes/invoiceRoutes');
+
+app.use(cors({ origin: true, credentials: true }));
 
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
