@@ -33,18 +33,20 @@ const Orders = () => {
     fetchOrders();
   }, []);
 
-  const fetchOrders = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:5000/api/orders', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setOrders(res.data);
-    } catch (err) {
-      console.error('Failed to fetch orders:', err);
-      showToast('Failed to load orders');
-    }
-  };
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
+const fetchOrders = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const res = await axios.get(`${API_BASE}/orders`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    setOrders(res.data);
+  } catch (err) {
+    console.error('Failed to fetch orders:', err.response?.data || err.message);
+    showToast('Failed to load orders');
+  }
+};
 
 const handleEditClick = (e, order) => {
   e.stopPropagation();
@@ -106,12 +108,11 @@ const handleEditSubmit = async (e) => {
   e.preventDefault();
   try {
     const token = localStorage.getItem('token');
-    const price = calculateEstimatedPrice(editForm);  // ← Add this
+    const price = calculateEstimatedPrice(editForm);
     const updatedForm = { ...editForm, estimatedPrice: price };
 
-
     const res = await axios.put(
-      `http://localhost:5000/api/orders/${editingOrder}`,
+      `${API_BASE}/orders/${editingOrder}`,
       updatedForm,
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -122,7 +123,7 @@ const handleEditSubmit = async (e) => {
     showToast('Order updated');
     setEditingOrder(null);
   } catch (err) {
-    console.error(err);
+    console.error(err.response?.data || err.message);
     showToast('Failed to update order');
   }
   fetchOrders();
@@ -147,21 +148,21 @@ const calculateEstimatedPrice = (form) => {
   return adjusted.toFixed(2);
 };
 
-  const handleDelete = async (id) => {
-    const confirm = window.confirm('Are you sure you want to delete this order?');
-    if (!confirm) return;
-    try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/orders/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setOrders((prev) => prev.filter(order => order.id !== id));
-      showToast('Order deleted successfully');
-    } catch (err) {
-      console.error('Delete error:', err);
-      showToast('Failed to delete order');
-    }
-  };
+const handleDelete = async (id) => {
+  const confirm = window.confirm('Are you sure you want to delete this order?');
+  if (!confirm) return;
+  try {
+    const token = localStorage.getItem('token');
+    await axios.delete(`${API_BASE}/orders/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    setOrders((prev) => prev.filter(order => order.id !== id));
+    showToast('Order deleted successfully');
+  } catch (err) {
+    console.error('Delete error:', err.response?.data || err.message);
+    showToast('Failed to delete order');
+  }
+};
 
   const showToast = (message) => {
     setToast(message);
