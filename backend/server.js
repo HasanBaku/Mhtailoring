@@ -31,8 +31,6 @@ const corsOptions = {
 };
 
 
-app.options('*', cors(corsOptions)); // 🔥 THIS LINE IS MANDATORY
-
 
 // 🔥 FIX: move these here, BEFORE any routes
 app.use(express.json({ limit: '10mb' }));
