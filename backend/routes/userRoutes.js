@@ -23,6 +23,16 @@ router.put('/vendors/:id/password', authenticateToken, updateVendorPassword);
 router.get('/test', (req, res) => {
   res.send('User route works');
 });
+const db = require('../db');
 
+// 🔍 Debug DB connection route
+router.get('/ping-db', async (req, res) => {
+  try {
+    const result = await db.query('SELECT NOW()');
+    res.json({ status: '✅ DB connected', time: result.rows[0].now });
+  } catch (err) {
+    console.error('❌ DB connection failed:', err);
+    res.status(500).json({ error: 'DB failed', details: err.message });
+  }
 // ✅ Export after all routes are defined
 module.exports = router;
