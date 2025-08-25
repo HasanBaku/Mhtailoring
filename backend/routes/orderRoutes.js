@@ -43,24 +43,20 @@ const getOrderById = async (req, res) => {
   }
 };
 
+// Admin routes — put first
 router.get('/admin/all', authenticateToken, getAllOrders);
 router.put('/admin/:id', authenticateToken, updateOrderByAdmin);
+router.delete('/admin/:id', authenticateToken, deleteOrder);
 
 // Vendor routes
 router.post('/', authenticateToken, createOrder);
 router.get('/', authenticateToken, getVendorOrders);
-router.get('/:id', authenticateToken, getOrderById);
-router.put('/:id', authenticateToken, updateOrder);
 router.patch('/:id/status', authenticateToken, updateOrderStatus);
-router.delete('/:id', authenticateToken, deleteOrderByVendor);
 router.put('/:id/approve', authenticateToken, approveOrder);
 router.put('/:id/reject', authenticateToken, rejectOrder);
-
-
-// (Optional) Admin delete route if needed
-router.delete('/admin/:id', authenticateToken, deleteOrder);
-
-
+router.put('/:id', authenticateToken, updateOrder);
+router.delete('/:id', authenticateToken, deleteOrderByVendor);
+router.get('/:id', authenticateToken, getOrderById);
 
 
 module.exports = router;
