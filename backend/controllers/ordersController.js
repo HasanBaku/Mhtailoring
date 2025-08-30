@@ -266,76 +266,92 @@ const updateOrderByAdmin = async (req, res) => {
 
 const approveOrder = async (req, res) => {
   const orderId = req.params.id;
-
+  const client = await db.connect();
   try {
-    // 1. Fetch order first
-const orderRes = await db.query(`
-  SELECT o.*, u.email AS vendor_email 
-  FROM orders o 
-  JOIN users u ON o.vendor_id = u.id 
-  WHERE o.id = $1
-`, [orderId]);
+    await client.query('BEGIN');
 
-const order = orderRes.rows[0];
-
-    if (!order) return res.status(404).json({ error: 'Order not found' });
-
-    if (order.status === 'Approved') {
-  console.log("⚠️ Order already approved. Skipping status update, checking invoice...");
-} else {
-  await db.query(`UPDATE orders SET status = 'Approved' WHERE id = $1`, [orderId]);
-}
-
-
-    // 2. Update order status to Approved
-    await db.query(`UPDATE orders SET status = 'Approved' WHERE id = $1`, [orderId]);
-
-    // 3. Check if an invoice already exists
-    const invoiceCheck = await db.query(`SELECT * FROM invoices WHERE order_id = $1`, [orderId]);
-    if (invoiceCheck.rows.length === 0) {
-      console.log('Invoice fields:', {
-  orderId: order.id,
-  vendorId: order.vendor_id,
-  price: order.estimated_price
-});
-      // 4. Generate Invoice
-      await db.query(`
-  INSERT INTO invoices (order_id, vendor_id, total_price, payment_status)
-  VALUES ($1, $2, $3, $4)
-`, [order.id, order.vendor_id, order.estimated_price, 'Pending']);}
-
-    res.json({ message: 'Order approved and invoice generated.' });
-  } catch (err) {
-    console.error('❌ Approve order failed:', err);
-    res.status(500).json({ error: 'Server error' });
-  }
-};
-const rejectOrder = async (req, res) => {
-  const orderId = req.params.id;
-
-  try {
-    console.log('Rejecting order:', orderId); // add this
-
-    const invoice = await db.query(`SELECT * FROM invoices WHERE order_id = $1`, [orderId]);
-    console.log('Fetched invoice:', invoice.rows); // and this
-
-    if (invoice.rows.length > 0 && invoice.rows[0].payment_status === 'Completed') {
-      return res.status(400).json({ error: 'Cannot reject order with a completed invoice' });
+    const { rows: orderRows } = await client.query(
+      `SELECT o.*, u.email AS vendor_email
+       FROM orders o JOIN users u ON o.vendor_id = u.id
+       WHERE o.id = $1 FOR UPDATE`, [orderId]
+    );
+    const order = orderRows[0];
+    if (!order) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Order not found' });
     }
 
-    const orderUpdate = await db.query(
-      `UPDATE orders SET status = 'Rejected' WHERE id = $1 RETURNING *`,
+    if (order.status !== 'Approved') {
+      await client.query(`UPDATE orders SET status = 'Approved' WHERE id = $1`, [orderId]);
+    }
+
+    const { rows: invRows } = await client.query(
+      `SELECT id FROM invoices WHERE order_id = $1`, [orderId]
+    );
+    if (!invRows.length) {
+      await client.query(
+        `INSERT INTO invoices (order_id, vendor_id, total_price, payment_status)
+         VALUES ($1, $2, $3, 'Pending')`,
+        [order.id, order.vendor_id, order.estimated_price]
+      );
+    }
+
+    const { rows: updated } = await client.query(`SELECT * FROM orders WHERE id = $1`, [orderId]);
+
+    await client.query('COMMIT');
+    return res.json(updated[0]);
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('❌ Approve order failed:', e);
+    return res.status(500).json({ error: 'Server error', details: e.message });
+  } finally {
+    client.release();
+  }
+};
+
+// controllers/orders.js
+const rejectOrder = async (req, res) => {
+  const orderId = req.params.id;
+  const client = await db.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Lock any invoice row to avoid races
+    const { rows: invRows } = await client.query(
+      'SELECT id, payment_status FROM invoices WHERE order_id = $1 FOR UPDATE',
       [orderId]
     );
 
-    await db.query(`DELETE FROM invoices WHERE order_id = $1`, [orderId]);
+    if (invRows.length && invRows[0].payment_status === 'Completed') {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Cannot reject order with a completed invoice' });
+    }
 
-    res.json(orderUpdate.rows[0]);
-  } catch (err) {
-    console.error('❌ Reject failed:', err);
-    res.status(500).json({ error: 'Server error while rejecting' });
+    // Delete any existing invoice (Pending/Rejected/etc.)
+    await client.query('DELETE FROM invoices WHERE order_id = $1', [orderId]);
+
+    // Flip order status
+    const { rows: ordRows } = await client.query(
+      "UPDATE orders SET status = 'Rejected' WHERE id = $1 RETURNING *",
+      [orderId]
+    );
+
+    if (!ordRows.length) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    await client.query('COMMIT');
+    return res.json(ordRows[0]);
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('❌ Reject failed:', e);
+    return res.status(500).json({ error: 'Server error while rejecting', details: e.message });
+  } finally {
+    client.release();
   }
 };
+
 
 
 
