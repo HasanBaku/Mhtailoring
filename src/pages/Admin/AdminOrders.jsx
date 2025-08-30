@@ -28,9 +28,7 @@ function AdminOrders() {
 
   const editOrder = async (id) => {
     try {
-      const res = await api.patch(`/orders/${id}`, {
-        estimatedPrice: parseFloat(newPrice),
-      });
+      const res = await api.patch(`/orders/${id}/price`, { estimatedPrice: parseFloat(newPrice) });
       const updated = res.data;
       setOrders(prev => prev.map(o => (o.id === id ? updated : o)));
       setEditingId(null);
@@ -75,9 +73,13 @@ function AdminOrders() {
     try {
       const res = await api.put(`/orders/${orderId}/reject`);
       const updated = res.data;
-      setOrders(prev => prev.map(order => (order.id === updated.id ? updated : order)));
+      setOrders(prev => prev.map(o => (o.id === updated.id ? updated : o)));
     } catch (err) {
+      const msg = err.response?.data?.error || err.message;
       console.error("❌ Failed to reject order:", err.response?.data || err.message);
+      alert(msg);
+      // make sure UI doesn't get stale if server actually changed something
+      fetchOrders();
     }
   };
 
